@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FrontBar Grand Opening & Estrazione Esclusiva</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                        },
+                        amberGlow: '#ffaa00',
+                        barDark: '#0b0c10',
+                        barCard: '#1f2833',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Cinzel', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0b0c10;
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        .neon-glow {
+            text-shadow: 0 0 10px rgba(250, 204, 21, 0.5), 0 0 20px rgba(250, 204, 21, 0.3), 0 0 30px rgba(250, 204, 21, 0.2);
+        }
+        .glass-card {
+            background: rgba(31, 40, 51, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .ticket-cutout-left, .ticket-cutout-right {
+            position: absolute;
+            top: 50%;
+            width: 24px;
+            height: 24px;
+            background-color: #0b0c10;
+            border-radius: 50%;
+            transform: translateY(-50%);
+        }
+        .ticket-cutout-left { left: -12px; }
+        .ticket-cutout-right { right: -12px; }
+        
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative selection:bg-gold-500 selection:text-black">
+    <!-- Dynamic Canvas Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Header / Branding -->
+    <header class="relative z-10 w-full py-4 sm:py-6 px-4 text-center border-b border-white/10 glass-card">
+        <div class="max-w-4xl mx-auto flex flex-col items-center justify-center">
+            <span class="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-gold-400 font-semibold mb-1">Grand Opening Contest</span>
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-wider font-serif text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-gold-400 to-amber-500 neon-glow">
+                FRONTBAR
+            </h1>
+            <p class="text-xs sm:text-sm text-gray-300 mt-1 flex items-center justify-center gap-1.5 font-medium leading-tight">
+                <i class="fa-solid fa-location-dot text-gold-500"></i> Vi aspettiamo per la grande apertura in <strong>Via Roma 1, Frontone</strong>!
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 flex-grow flex flex-col items-center justify-center px-3 sm:px-4 py-6 max-w-4xl mx-auto w-full">
+        
+        <!-- COUNTDOWN SECTION -->
+        <section class="w-full text-center mb-6 sm:mb-8">
+            <h2 class="text-[11px] sm:text-sm uppercase tracking-widest text-gray-300 mb-2 sm:mb-3 font-semibold">
+                <i class="fa-regular fa-clock me-1 text-gold-400"></i> Tempo rimasto all'apertura e alla fine dell'estrazione
+            </h2>
+            <div id="countdown" class="grid grid-cols-4 gap-1.5 sm:gap-4 max-w-md mx-auto">
+                <div class="glass-card p-2 sm:p-4 rounded-xl border border-gold-500/20 shadow-lg">
+                    <span id="days" class="block text-xl sm:text-4xl font-extrabold text-white">00</span>
+                    <span class="text-[9px] sm:text-xs text-gray-400 uppercase tracking-wider">Giorni</span>
+                </div>
+                <div class="glass-card p-2 sm:p-4 rounded-xl border border-gold-500/20 shadow-lg">
+                    <span id="hours" class="block text-xl sm:text-4xl font-extrabold text-white">00</span>
+                    <span class="text-[9px] sm:text-xs text-gray-400 uppercase tracking-wider">Ore</span>
+                </div>
+                <div class="glass-card p-2 sm:p-4 rounded-xl border border-gold-500/20 shadow-lg">
+                    <span id="minutes" class="block text-xl sm:text-4xl font-extrabold text-white">00</span>
+                    <span class="text-[9px] sm:text-xs text-gray-400 uppercase tracking-wider">Min</span>
+                </div>
+                <div class="glass-card p-2 sm:p-4 rounded-xl border border-gold-500/20 shadow-lg">
+                    <span id="seconds" class="block text-xl sm:text-4xl font-extrabold text-gold-400">00</span>
+                    <span class="text-[9px] sm:text-xs text-gray-400 uppercase tracking-wider">Sec</span>
+                </div>
+            </div>
+            <p class="text-[11px] sm:text-xs text-gold-400/90 mt-2.5 font-medium">
+                <i class="fa-solid fa-calendar-day me-1"></i> 5 Dicembre - Ore 20:00
+            </p>
+        </section>
+
+        <!-- FORM REGISTRAZIONE -->
+        <div id="registration-card" class="w-full max-w-md glass-card rounded-2xl p-5 sm:p-8 shadow-2xl border border-white/10 relative transition-all duration-300">
+            <div class="text-center mb-5">
+                <h3 class="text-lg sm:text-2xl font-bold text-white mb-1">Partecipa all'Estrazione</h3>
+                <p class="text-xs text-gray-400">Registrati ora per vincere fantastici drink e shot durante la serata!</p>
+            </div>
+
+            <!-- Premi Preview -->
+            <div class="bg-black/40 border border-gold-500/20 rounded-xl p-2.5 mb-5 grid grid-cols-3 gap-1 text-center">
+                <div class="border-r border-white/10 pr-1">
+                    <span class="block text-[9px] text-gray-400 font-bold uppercase">3° Posto</span>
+                    <span class="text-[11px] sm:text-xs text-gold-400 font-bold">2 Shot</span>
+                </div>
+                <div class="border-r border-white/10 px-1">
+                    <span class="block text-[9px] text-gray-400 font-bold uppercase">2° Posto</span>
+                    <span class="text-[11px] sm:text-xs text-gold-400 font-bold">1 Drink + 1 Shot</span>
+                </div>
+                <div class="pl-1">
+                    <span class="block text-[9px] text-gray-400 font-bold uppercase">1° Posto</span>
+                    <span class="text-[11px] sm:text-xs text-gold-400 font-bold">2 Drink + 2 Shot</span>
+                </div>
+            </div>
+
+            <form id="giveaway-form" onsubmit="handleRegistration(event)" class="space-y-3.5">
+                <div>
+                    <label for="nome" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Nome *</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-user text-sm"></i>
+                        </span>
+                        <input type="text" id="nome" required placeholder="Es. Marco" 
+                            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                            class="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/15 rounded-xl focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 text-white placeholder-gray-500 text-sm transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="cognome" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Cognome *</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-user-tag text-sm"></i>
+                        </span>
+                        <input type="text" id="cognome" required placeholder="Es. Rossi" 
+                            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                            class="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/15 rounded-xl focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 text-white placeholder-gray-500 text-sm transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="instagram" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Tag Instagram *</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-brands fa-instagram text-sm"></i>
+                        </span>
+                        <input type="text" id="instagram" required placeholder="@username" 
+                            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                            class="w-full pl-10 pr-4 py-3 bg-black/50 border border-white/15 rounded-xl focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 text-white placeholder-gray-500 text-sm transition">
+                    </div>
+                    <span class="text-[10px] text-gray-400 mt-1 block">Es. @marco_rossi (Verrà verificato per il premio)</span>
+                </div>
+
+                <!-- Privacy check -->
+                <div class="flex items-start gap-2 pt-1">
+                    <input type="checkbox" id="privacy" required class="mt-0.5 rounded bg-black/50 border-white/20 text-gold-500 focus:ring-gold-500 h-4 w-4">
+                    <label for="privacy" class="text-[11px] text-gray-400 leading-tight">
+                        Accetto di essere presente la sera del 5 Dicembre alle 20:00 per la riscossione del premio.
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 px-6 mt-3 bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-black font-extrabold rounded-xl shadow-lg shadow-gold-500/20 transform active:scale-95 transition-all text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-ticket"></i> REGISTRATI ALL'EVENTO
+                </button>
+            </form>
+        </div>
+
+        <!-- TICKET / CONFERMA REGISTRAZIONE -->
+        <div id="ticket-card" class="hidden w-full max-w-md transition-all duration-500 transform scale-95">
+            <div class="glass-card rounded-2xl p-5 sm:p-8 shadow-2xl border border-gold-500/40 relative overflow-hidden">
+                
+                <div class="ticket-cutout-left shadow-inner"></div>
+                <div class="ticket-cutout-right shadow-inner"></div>
+
+                <div class="text-center mb-4">
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-gold-500/20 text-gold-400 rounded-full mb-2 border border-gold-500/40">
+                        <i class="fa-solid fa-check text-xl"></i>
+                    </div>
+                    <span class="block text-xs uppercase tracking-widest text-gold-400 font-semibold">Registrazione Confermata</span>
+                    <h3 class="text-2xl font-serif font-bold text-white">FRONTBAR</h3>
+                </div>
+
+                <div class="border-t border-b border-white/10 py-4 my-4 space-y-3">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Partecipante:</span>
+                        <span id="ticket-name" class="font-bold text-white"></span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Instagram:</span>
+                        <span id="ticket-ig" class="font-bold text-gold-400"></span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Codice Ticket:</span>
+                        <span id="ticket-code" class="font-mono text-lg font-extrabold text-amber-400 tracking-wider"></span>
+                    </div>
+                </div>
+
+                <!-- Avviso svelamento solo dal vivo -->
+                <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 mb-4 text-center">
+                    <p class="text-xs text-amber-200 font-medium leading-relaxed">
+                        <i class="fa-solid fa-bullhorn text-gold-400 mb-1 block text-base"></i>
+                        I 3 vincitori verranno estratti <strong class="text-white underline">SOLO DAL VIVO</strong> il <strong>5 Dicembre alle ore 20:00</strong> in Via Roma 1, Frontone!
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <button onclick="copyTicketCode()" class="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs uppercase font-bold tracking-wider rounded-xl transition flex items-center justify-center gap-2">
+                        <i class="fa-regular fa-copy"></i> Copia Codice Ticket
+                    </button>
+                    <p class="text-[10px] text-center text-gray-400">Vi aspettiamo al FrontBar!</p>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 w-full py-4 px-2 text-center text-[11px] sm:text-xs text-gray-500 border-t border-white/5 glass-card mt-auto">
+        <p>&copy; 2026 FrontBar - Via Roma 1, Frontone. Apertura Ufficiale il 5 Dicembre alle 20:00.</p>
+    </footer>
+
+    <!-- BOTTONE PANNELLO ADMIN (In Basso a Destra) -->
+    <button onclick="toggleAdminModal()" class="fixed bottom-4 right-4 z-50 w-11 h-11 bg-black/80 border border-white/20 rounded-full flex items-center justify-center text-gray-400 hover:text-gold-400 hover:border-gold-500 transition shadow-xl" title="Area Riservata Staff">
+        <i class="fa-solid fa-lock text-base"></i>
+    </button>
+
+    <!-- MODALE PANNELLO ADMIN & ESTRAZIONE (Con Scorrimento Web Standard) -->
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md overflow-y-auto">
+        <div class="min-h-screen w-full flex items-start justify-center p-3 sm:p-6 my-auto">
+            <div class="glass-card w-full max-w-3xl rounded-2xl border border-white/20 p-4 sm:p-6 relative shadow-2xl my-6">
+                <!-- Header Modal -->
+                <div class="flex justify-between items-center pb-3 border-b border-white/10 mb-4 sticky top-0 bg-barDark/90 backdrop-blur-md z-10 py-1">
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-crown text-gold-400"></i> Pannello Staff FrontBar
+                        </h3>
+                        <p class="text-[11px] sm:text-xs text-gray-400">Gestione partecipanti & Estrazione live</p>
+                    </div>
+                    <button onclick="toggleAdminModal()" class="text-gray-400 hover:text-white text-xl p-2 rounded-lg bg-white/5 hover:bg-white/10 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Login Admin Form -->
+                <div id="admin-login-sec" class="py-8 text-center space-y-4">
+                    <p class="text-sm text-gray-300">Inserisci la password dello Staff per accedere:</p>
+                    <input type="password" id="admin-pass" placeholder="Password staff" class="px-4 py-2.5 bg-black/50 border border-white/20 rounded-lg text-sm text-center text-white focus:outline-none focus:border-gold-500">
+                    <div>
+                        <button onclick="loginAdmin()" class="px-6 py-2.5 bg-gold-500 text-black font-bold text-sm rounded-lg hover:bg-gold-400 transition">
+                            Accedi
+                        </button>
+                    </div>
+                    <p id="admin-err" class="text-xs text-red-400 hidden">Password errata!</p>
+                </div>
+
+                <!-- Contenuto Admin (Visibile dopo login) -->
+                <div id="admin-content-sec" class="hidden flex-col space-y-4">
+                    <!-- Statistiche & Azioni -->
+                    <div class="flex flex-wrap justify-between items-center gap-2 bg-black/40 p-3 rounded-xl border border-white/5">
+                        <div>
+                            <span class="text-[10px] text-gray-400 block">Totale Registrati:</span>
+                            <span id="total-count" class="text-xl font-bold text-gold-400">0</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="exportCSV()" class="px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-xs text-white rounded-lg transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-csv"></i> Esporta CSV
+                            </button>
+                            <button onclick="clearData()" class="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-xs text-red-300 rounded-lg transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SEZIONE ESTRAZIONE LIVE -->
+                    <div class="bg-gradient-to-r from-amber-950/40 via-gold-950/30 to-amber-950/40 border border-gold-500/40 rounded-xl p-3.5 sm:p-5 text-center shadow-inner">
+                        <h4 class="text-[10px] sm:text-xs font-bold text-gold-400 uppercase tracking-widest mb-3">Seleziona Premio & Estrai</h4>
+                        
+                        <!-- Selezione Premio -->
+                        <div class="grid grid-cols-3 gap-2 mb-3">
+                            <button onclick="selectPrize('3')" id="btn-prize-3" class="prize-btn py-2.5 px-1 rounded-lg border text-[11px] font-bold transition flex flex-col items-center border-gold-500 bg-gold-500/20 text-gold-400">
+                                <span>3° POSTO</span>
+                                <span class="text-[9px] font-normal text-gray-300">2 Shot</span>
+                            </button>
+                            <button onclick="selectPrize('2')" id="btn-prize-2" class="prize-btn py-2.5 px-1 rounded-lg border text-[11px] font-bold transition flex flex-col items-center border-white/10 bg-black/40 text-gray-400 hover:border-gold-500/50">
+                                <span>2° POSTO</span>
+                                <span class="text-[9px] font-normal text-gray-300">1 Drink + 1 Shot</span>
+                            </button>
+                            <button onclick="selectPrize('1')" id="btn-prize-1" class="prize-btn py-2.5 px-1 rounded-lg border text-[11px] font-bold transition flex flex-col items-center border-white/10 bg-black/40 text-gray-400 hover:border-gold-500/50">
+                                <span>1° POSTO</span>
+                                <span class="text-[9px] font-normal text-gray-300">2 Drink + 2 Shot</span>
+                            </button>
+                        </div>
+
+                        <!-- Visualizzazione Estrazione -->
+                        <div id="winner-display" class="py-4 my-2 border-y border-gold-500/20 min-h-[90px] flex flex-col items-center justify-center bg-black/30 rounded-lg px-2">
+                            <span class="text-gray-400 text-xs italic">Seleziona il premio e avvia l'estrazione</span>
+                        </div>
+
+                        <!-- Bottoni di Controllo -->
+                        <div class="flex flex-wrap justify-center gap-2 mt-3">
+                            <button id="btn-draw" onclick="drawWinner()" class="py-3 px-6 bg-gradient-to-r from-gold-400 to-amber-500 hover:from-gold-300 hover:to-amber-400 text-black font-extrabold rounded-xl shadow-lg transition text-xs uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-dice"></i> ESTRAI VINCITORE
+                            </button>
+                            <button id="btn-reroll" onclick="rerollWinner()" class="hidden py-3 px-5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl shadow-lg transition text-xs uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-rotate-right"></i> Assente / Re-roll
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Registro Vincitori Assegnati -->
+                    <div class="bg-black/30 p-3 rounded-xl border border-white/5">
+                        <h5 class="text-[11px] font-bold text-gray-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-trophy text-gold-400"></i> Registro Vincitori Assegnati:
+                        </h5>
+                        <div id="assigned-winners-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                            <!-- Popolato via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Tabella Partecipanti -->
+                    <div class="border-t border-white/10 pt-3">
+                        <h5 class="text-[11px] font-bold text-gray-400 uppercase mb-2">Tutti i Partecipanti:</h5>
+                        <div class="overflow-x-auto rounded-xl border border-white/10">
+                            <table class="w-full text-left text-xs text-gray-300">
+                                <thead class="bg-black/80 text-gold-400 uppercase tracking-wider">
+                                    <tr>
+                                        <th class="p-2.5 text-[10px]">Codice</th>
+                                        <th class="p-2.5 text-[10px]">Nome</th>
+                                        <th class="p-2.5 text-[10px]">Instagram</th>
+                                        <th class="p-2.5 text-[10px]">Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="participants-tbody" class="divide-y divide-white/5 bg-black/30">
+                                    <!-- Popolato via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifica -->
+    <div id="toast" class="fixed top-5 right-5 z-50 hidden bg-gold-500 text-black px-4 py-3 rounded-xl shadow-2xl font-semibold text-xs flex items-center gap-2">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-msg">Messaggio di notifica</span>
+    </div>
+
+    <script>
+        const targetDate = new Date("December 5, 2026 20:00:00").getTime();
+
+        const prizes = {
+            '3': { title: '3° Posto', reward: '2 Shot 🥃', badge: 'bg-amber-700/40 text-amber-300 border-amber-500/50' },
+            '2': { title: '2° Posto', reward: '1 Drink + 1 Shot 🍹', badge: 'bg-slate-700/40 text-gray-200 border-gray-400/50' },
+            '1': { title: '1° Posto', reward: '2 Drink + 2 Shot 🍸', badge: 'bg-gold-500/20 text-gold-400 border-gold-500/50' }
+        };
+        let selectedPrizeKey = '3';
+        let currentWinnerObj = null;
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance < 0) {
+                document.getElementById("countdown").innerHTML = `
+                    <div class="col-span-4 p-3 glass-card border border-gold-500/50 rounded-xl">
+                        <span class="text-gold-400 font-bold text-sm">🎉 L'EVENTO È INIZIATO! REGISTRAZIONI CHIUSE. 🎉</span>
+                    </div>`;
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerText = days.toString().padStart(2, '0');
+            document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
+            document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
+            document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        function handleRegistration(e) {
+            e.preventDefault();
+
+            const nome = document.getElementById("nome").value.trim();
+            const cognome = document.getElementById("cognome").value.trim();
+            let instagram = document.getElementById("instagram").value.trim();
+
+            if (!instagram.startsWith('@')) {
+                instagram = '@' + instagram;
+            }
+
+            const randomCode = 'FB-' + Math.floor(1000 + Math.random() * 9000);
+
+            const newEntry = {
+                id: randomCode,
+                nome: nome,
+                cognome: cognome,
+                instagram: instagram,
+                date: new Date().toLocaleString('it-IT')
+            };
+
+            const existing = JSON.parse(localStorage.getItem('frontbar_participants') || '[]');
+            existing.push(newEntry);
+            localStorage.setItem('frontbar_participants', JSON.stringify(existing));
+
+            document.getElementById("ticket-name").innerText = `${nome} ${cognome}`;
+            document.getElementById("ticket-ig").innerText = instagram;
+            document.getElementById("ticket-code").innerText = randomCode;
+
+            document.getElementById("registration-card").classList.add("hidden");
+            const ticketCard = document.getElementById("ticket-card");
+            ticketCard.classList.remove("hidden");
+            setTimeout(() => {
+                ticketCard.classList.remove("scale-95");
+                ticketCard.classList.add("scale-100");
+            }, 50);
+
+            confetti({
+                particleCount: 70,
+                spread: 60,
+                origin: { y: 0.7 }
+            });
+        }
+
+        function copyTicketCode() {
+            const code = document.getElementById("ticket-code").innerText;
+            const textToCopy = `Il mio ticket FrontBar (Via Roma 1, Frontone) è: ${code}! Estratto il 5 Dicembre alle 20:00!`;
+            
+            const tempInput = document.createElement("input");
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast("Codice copiato negli appunti!");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toast-msg").innerText = msg;
+            toast.classList.remove("hidden");
+            setTimeout(() => {
+                toast.classList.add("hidden");
+            }, 3000);
+        }
+
+        function toggleAdminModal() {
+            const modal = document.getElementById("admin-modal");
+            modal.classList.toggle("hidden");
+        }
+
+        function loginAdmin() {
+            const pass = document.getElementById("admin-pass").value;
+            if (pass === "cimedirapa04") {
+                document.getElementById("admin-login-sec").classList.add("hidden");
+                document.getElementById("admin-content-sec").classList.remove("hidden");
+                document.getElementById("admin-content-sec").classList.add("flex");
+                document.getElementById("admin-err").classList.add("hidden");
+                renderParticipants();
+                renderAssignedWinners();
+            } else {
+                document.getElementById("admin-err").classList.remove("hidden");
+            }
+        }
+
+        function selectPrize(key) {
+            selectedPrizeKey = key;
+            ['1', '2', '3'].forEach(k => {
+                const btn = document.getElementById(`btn-prize-${k}`);
+                if (k === key) {
+                    btn.className = "prize-btn py-2.5 px-1 rounded-lg border text-[11px] font-bold transition flex flex-col items-center border-gold-500 bg-gold-500/20 text-gold-400";
+                } else {
+                    btn.className = "prize-btn py-2.5 px-1 rounded-lg border text-[11px] font-bold transition flex flex-col items-center border-white/10 bg-black/40 text-gray-400 hover:border-gold-500/50";
+                }
+            });
+            document.getElementById("btn-reroll").classList.add("hidden");
+        }
+
+        function renderParticipants() {
+            const participants = JSON.parse(localStorage.getItem('frontbar_participants') || '[]');
+            document.getElementById("total-count").innerText = participants.length;
+
+            const tbody = document.getElementById("participants-tbody");
+            tbody.innerHTML = "";
+
+            if (participants.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500">Nessun partecipante.</td></tr>`;
+                return;
+            }
+
+            participants.forEach(p => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-white/5 transition";
+                tr.innerHTML = `
+                    <td class="p-2.5 font-mono text-gold-400 font-bold">${p.id}</td>
+                    <td class="p-2.5 font-medium text-white">${p.nome} ${p.cognome}</td>
+                    <td class="p-2.5 text-gray-400">${p.instagram}</td>
+                    <td class="p-2.5 text-gray-500 text-[9px]">${p.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderAssignedWinners() {
+            const assigned = JSON.parse(localStorage.getItem('frontbar_assigned_winners') || '{}');
+            const container = document.getElementById("assigned-winners-list");
+            container.innerHTML = "";
+
+            ['3', '2', '1'].forEach(k => {
+                const pInfo = prizes[k];
+                const winner = assigned[k];
+                const card = document.createElement("div");
+                card.className = `p-2.5 rounded-lg border text-center ${pInfo.badge}`;
+                
+                if (winner) {
+                    card.innerHTML = `
+                        <div class="font-bold text-[10px] uppercase">${pInfo.title}</div>
+                        <div class="text-[9px] text-gray-300 mb-0.5">${pInfo.reward}</div>
+                        <div class="font-extrabold text-white text-xs">${winner.nome} ${winner.cognome}</div>
+                        <div class="text-[9px] font-mono text-gold-400">${winner.instagram} (${winner.id})</div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="font-bold text-[10px] uppercase">${pInfo.title}</div>
+                        <div class="text-[9px] text-gray-400 mb-0.5">${pInfo.reward}</div>
+                        <div class="text-[10px] italic text-gray-500 py-0.5">Non ancora estratto</div>
+                    `;
+                }
+                container.appendChild(card);
+            });
+        }
+
+        let isDrawing = false;
+
+        function runExtraction(prizeKey) {
+            const participants = JSON.parse(localStorage.getItem('frontbar_participants') || '[]');
+            const display = document.getElementById("winner-display");
+            const prizeInfo = prizes[prizeKey];
+
+            if (participants.length === 0) {
+                display.innerHTML = `<span class="text-red-400 font-bold text-xs">Impossibile estrarre: nessun partecipante registrato!</span>`;
+                return;
+            }
+
+            if (isDrawing) return;
+            isDrawing = true;
+            document.getElementById("btn-reroll").classList.add("hidden");
+
+            let counter = 0;
+            const maxCycles = 25;
+            const interval = setInterval(() => {
+                const tempWinner = participants[Math.floor(Math.random() * participants.length)];
+                display.innerHTML = `
+                    <span class="text-gray-400 text-[9px] tracking-widest uppercase">Estrazione per ${prizeInfo.title}...</span>
+                    <span class="text-lg font-mono font-bold text-gold-400 animate-pulse">${tempWinner.id}</span>
+                    <span class="text-xs text-white">${tempWinner.nome} ${tempWinner.cognome}</span>
+                `;
+                counter++;
+
+                if (counter >= maxCycles) {
+                    clearInterval(interval);
+                    isDrawing = false;
+                    currentWinnerObj = participants[Math.floor(Math.random() * participants.length)];
+                    
+                    const assigned = JSON.parse(localStorage.getItem('frontbar_assigned_winners') || '{}');
+                    assigned[prizeKey] = currentWinnerObj;
+                    localStorage.setItem('frontbar_assigned_winners', JSON.stringify(assigned));
+                    renderAssignedWinners();
+
+                    display.innerHTML = `
+                        <span class="text-[9px] uppercase font-bold tracking-widest text-gold-400 mb-0.5">🎉 VINCITORE ${prizeInfo.title} (${prizeInfo.reward}) 🎉</span>
+                        <span class="text-xl sm:text-2xl font-serif font-extrabold text-amber-400 neon-glow">${currentWinnerObj.nome} ${currentWinnerObj.cognome}</span>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-xs font-mono font-bold bg-white/10 px-2 py-0.5 rounded text-white">${currentWinnerObj.id}</span>
+                            <span class="text-xs font-bold text-gold-400">${currentWinnerObj.instagram}</span>
+                        </div>
+                    `;
+
+                    document.getElementById("btn-reroll").classList.remove("hidden");
+
+                    confetti({
+                        particleCount: 100,
+                        spread: 80,
+                        origin: { y: 0.5 }
+                    });
+                }
+            }, 80);
+        }
+
+        function drawWinner() {
+            runExtraction(selectedPrizeKey);
+        }
+
+        function rerollWinner() {
+            runExtraction(selectedPrizeKey);
+        }
+
+        function exportCSV() {
+            const participants = JSON.parse(localStorage.getItem('frontbar_participants') || '[]');
+            if (participants.length === 0) {
+                showToast("Nessun dato da esportare.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Codice,Nome,Cognome,Instagram,DataRegistrazione\n";
+            participants.forEach(p => {
+                csvContent += `"${p.id}","${p.nome}","${p.cognome}","${p.instagram}","${p.date}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `partecipanti_frontbar.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function clearData() {
+            if (confirm("Sei sicuro di voler cancellare TUTTI i dati?")) {
+                localStorage.removeItem('frontbar_participants');
+                localStorage.removeItem('frontbar_assigned_winners');
+                renderParticipants();
+                renderAssignedWinners();
+                document.getElementById("winner-display").innerHTML = `<span class="text-gray-400 text-xs italic">Seleziona il premio e avvia l'estrazione</span>`;
+                document.getElementById("btn-reroll").classList.add("hidden");
+                showToast("Dati azzerati.");
+            }
+        }
+
+        // Animated Background
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const particles = [];
+        const particleCount = 45;
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 2 + 0.5,
+                color: `rgba(250, 204, 21, ${Math.random() * 0.4 + 0.1})`,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: -Math.random() * 0.5 - 0.1
+            });
+        }
+
+        function animateBg() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.y < 0) {
+                    p.y = canvas.height;
+                    p.x = Math.random() * canvas.width;
+                }
+                if (p.x < 0 || p.x > canvas.width) {
+                    p.vx *= -1;
+                }
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            });
+            requestAnimationFrame(animateBg);
+        }
+
+        window.onload = function() {
+            animateBg();
+        };
+    </script>
+</body>
+</html>
